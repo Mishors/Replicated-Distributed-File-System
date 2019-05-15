@@ -23,7 +23,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 	private ConcurrentHashMap<Long, String> fileNameTransaction;
 	private ConcurrentHashMap<String, Semaphore> fileLock;
 	private ConcurrentHashMap<String, ReadWriteLock> fileReadWriteLock;
-	private ConcurrentHashMap<String, FileContent> cache;
+	public ConcurrentHashMap<String, FileContent> cache;
 	private MasterServerClientInterface masterServer;
 	private String dir;
 	private String name;
@@ -61,6 +61,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			cache.put(fileName, data);
 		} else {
 			cache.get(fileName).appendData(data.getData());
+			
 		}
 		return null;
 	}
@@ -109,8 +110,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			if (locations[0].getName().equals(name)) {
 				for (int i = 1; i < locations.length; i++) {
 					ReplicaLoc loc = locations[i];
-					Registry reg = LocateRegistry.getRegistry(loc.getHost(),
-							loc.getPort());
+					Registry reg = LocateRegistry.getRegistry(loc.getPort());
 					try {
 						ReplicaServerClientInterface repServer = (ReplicaServerClientInterface) reg
 								.lookup(loc.getName());
@@ -129,7 +129,8 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-				System.out.println("errrrrror11");
+				System.out.println(e1);
+				//System.out.println("errrrrror11");
 			}
 
 			ReadWriteLock lock = null;
@@ -141,6 +142,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			}
 			try {
 				lock.writeLock().lock();
+				System.out.println(dir);
 				File f = new File(dir + "/" + fileName);
 				System.out.println("created");
 				FileWriter fw = new FileWriter(f, true);

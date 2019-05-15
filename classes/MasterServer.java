@@ -113,6 +113,7 @@ public WriteMsg write(FileContent data) throws RemoteException, IOException {
 		// the
 		// primary replica in the order which they obtain their transaction
 		// id's
+		System.out.println("hello from master write");
 		Lock lock = null;
 		try {
 			if (!fileLock.containsKey(fileName)) {
@@ -201,6 +202,9 @@ private static void sshConnection(String host, String user, String password, Str
 	        ((ChannelExec)channel).setErrStream(System.err);
 	        
 	        InputStream in=channel.getInputStream();
+	        StreamReader ls = new StreamReader(in, true);
+	        Thread t = new Thread(ls);
+	        t.start();
 	        channel.connect();
 	        byte[] tmp=new byte[1024];
 //	        while(true){
