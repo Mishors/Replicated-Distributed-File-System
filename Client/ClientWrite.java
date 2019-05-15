@@ -49,7 +49,7 @@ public class ClientWrite {
                 repServer = (ReplicaServerClientInterface) reg.lookup(loc.getName());
                 repServer.write(msg.getTransactionId(), 0, data);
             }
-            //Thread.sleep(1000);
+            //Thread.sleep(2000);
         }
         //System.out.println(repServer.commit(msg.getTransactionId(), 3));
     }

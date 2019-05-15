@@ -122,17 +122,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 					}
 				}
 			}
-			try {
-				FileContent fc = new FileContent(fileName);
-				fc.setData(null);
-				masterServer.write(fc);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				System.out.println(e1);
-				//System.out.println("errrrrror11");
-			}
-
+			
 			ReadWriteLock lock = null;
 			if (!fileReadWriteLock.containsKey(fileName)) {
 				lock = new ReentrantReadWriteLock();
@@ -157,6 +147,18 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 				System.out.println("errrrrror1");
 			}
 			fileLock.get(fileName).release();
+			
+			try {
+				FileContent fc = new FileContent(fileName);
+				fc.setData(null);
+				masterServer.write(fc);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				System.out.println(e1);
+				//System.out.println("errrrrror11");
+			}
+
 			return success;
 		}
 		return false;

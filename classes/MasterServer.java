@@ -14,12 +14,14 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.HashSet;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -34,6 +36,7 @@ public class MasterServer implements MasterServerClientInterface {
 
 private ConcurrentHashMap<String, ReplicaLoc[]> locMap;
 private ConcurrentHashMap<String, Lock> fileLock;
+private Set<String> metaDataFiles = new HashSet<String>(); 
 private ReplicaLoc[] replicaServerAddresses;
 private AtomicInteger txnID, timeStamp;
 private static int NUM_REPLICA_PER_FILE = 2;
@@ -95,10 +98,14 @@ private ReplicaLoc[] selectRandomReplicas() {
 @Override
 public WriteMsg write(FileContent data) throws RemoteException, IOException {
 	String fileName = data.getFileName();
+	
+	if(data.getData() == null && metaDataFiles.contains(fileName))
+		return null;
 
 	// check if this is a commit acknowledgment
-	if (data.getData() == null) {
+	if (data.getData() == null && !metaDataFiles.contains(fileName)) {
 		synchronized (this) {
+			metaDataFiles.add(fileName);
 			ReplicaLoc[] locations = locMap.get(fileName);
 			metaDataWriter.write(fileName);
 			for (int i = 0; i < locations.length; i++) {
@@ -141,7 +148,7 @@ public WriteMsg write(FileContent data) throws RemoteException, IOException {
 			} catch (Exception e) {
 				System.out.println("errrrrror5");
 			}
-			primaryServer.write(tId, 1, data);
+			primaryServer.write(tId, 1, data);			
 			return new WriteMsg(tId, ts, primary);
 		} catch (Exception e) {
 			e.printStackTrace();
