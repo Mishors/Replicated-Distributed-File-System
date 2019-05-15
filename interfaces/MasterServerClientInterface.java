@@ -14,7 +14,7 @@ public interface MasterServerClientInterface extends Remote {
 	 * Read file from server
 	 * 
 	 * @param fileName
-	 * @return the addresses of  of its different replicas
+	 * @return the addresses of the file different replicas
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws RemoteException
@@ -26,7 +26,7 @@ public interface MasterServerClientInterface extends Remote {
 	 * Start a new write transaction
 	 * 
 	 * @param fileName
-	 * @return the requiref info
+	 * @return the required info
 	 * @throws RemoteException
 	 * @throws IOException
 	 */
