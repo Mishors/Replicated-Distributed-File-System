@@ -33,51 +33,19 @@ public class Client {
 	
 	public FileContent write(String fileName, String serverMetaDataFile) throws Exception {
 		// Read Master Server meta Data
-		readServerMetaData(serverMetaDataFile);
+				readServerMetaData(serverMetaDataFile);
 
-		//System.out.println("Connected To " + masterServerName + " Address:" + 
-		//					masterServerAddress + " Port:" + masterServerPort);
-		
-		//Connecting Remotely with Master Server via RMI
-		Registry reg = LocateRegistry.getRegistry(new Integer(masterServerPort));
-		MasterServerClientInterface masterServer = (MasterServerClientInterface) reg.lookup("masterServer");
-		
-		FileContent data = new FileContent(fileName);
-		WriteMsg msg = null;
-		ReplicaServerClientInterface repServer = null;
-		
-		System.out.println("Writing...");
-		for (int i = 0; i < 10; i++) {
-			data.appendData(i + "\n");
-			
-			//if (i % 3 == 0) {				
-				//if (msg != null) {
-					//repServer.commit(msg.getTransactionId(), 3);
-				//}
-				//data = new FileContent(fileName);
-				//data.appendData("\n\n");
+				System.out.println("Connected To " + masterServerName + " Address:" + 
+									masterServerAddress + " Port:" + masterServerPort);	
 				
-				//msg = masterServer.write(data);
+				FileContent data = new FileContent(fileName);		
 				
-				//data = new FileContent(fileName);
-				//data.appendData(i + "\n");
-				//ReplicaLoc loc = msg.getLoc();
-				//repServer = (ReplicaServerClientInterface) reg.lookup(loc.getName());
-
-				//repServer.write(msg.getTransactionId(), 0, data);
-			//} else {
-				//data = new FileContent(fileName);
-				//data.appendData(i + "\n");
-				//ReplicaLoc loc = msg.getLoc();
-				//repServer = (ReplicaServerClientInterface) reg.lookup(loc.getName());
-				//repServer.write(msg.getTransactionId(), 0, data);
-			//}
-			// Thread.sleep(2000);
-		}
-		//Committing Last Write
-		//repServer.commit(msg.getTransactionId(), 3);
-		System.out.println("Finished Writing");
-		return data;
+				System.out.println("Writing...");
+				for (int i = 0; i < 10; i++) {
+					data.appendData(i + "\n");			
+				}		
+				System.out.println("Finished Writing");
+				return data;
 	}
 	
 	public void commit(FileContent data) throws Exception {

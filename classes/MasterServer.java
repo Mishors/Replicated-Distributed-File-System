@@ -224,7 +224,7 @@ public class MasterServer implements MasterServerClientInterface {
 				String cmd6 = ";rmic classes/MasterServer";
 				String cmd7 = ";exit";
 
-				sshConnection("127.0.0.1", "mo-raafat", "misho6928", cmd1 + cmd2 + cmd4 + cmd5 + cmd6 + cmd7);
+				sshConnection("127.0.0.1", "mo-raafat", "1234", cmd1 + cmd2 + cmd4 + cmd5 + cmd6 + cmd7);
 
 				System.out.println("SSHConnection to Start " + repLoc.getName());
 			}
