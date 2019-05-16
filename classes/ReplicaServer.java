@@ -23,13 +23,12 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 	private ConcurrentHashMap<Long, String> fileNameTransaction;
 	private ConcurrentHashMap<String, Semaphore> fileLock;
 	private ConcurrentHashMap<String, ReadWriteLock> fileReadWriteLock;
-	public ConcurrentHashMap<String, FileContent> cache;
+	private ConcurrentHashMap<String, FileContent> cache;
 	private MasterServerClientInterface masterServer;
 	private String dir;
 	private String name;
 
-	public ReplicaServer(String dir, String name,
-			MasterServerClientInterface masterServer) {
+	public ReplicaServer(String dir, String name, MasterServerClientInterface masterServer) {
 		fileNameTransaction = new ConcurrentHashMap<>();
 		fileLock = new ConcurrentHashMap<>();
 		fileReadWriteLock = new ConcurrentHashMap<String, ReadWriteLock>();
@@ -40,8 +39,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 	}
 
 	@Override
-	public WriteMsg write(long txnID, long msgSeqNum, FileContent data)
-			throws RemoteException, IOException {
+	public WriteMsg write(long txnID, long msgSeqNum, FileContent data) throws RemoteException, IOException {
 		String fileName = data.getFileName();
 		// if this is the first message, we obtain a lock on file first
 		if (msgSeqNum == 1) {
@@ -61,14 +59,13 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			cache.put(fileName, data);
 		} else {
 			cache.get(fileName).appendData(data.getData());
-			
+
 		}
 		return null;
 	}
 
 	@Override
-	public FileContent read(String fileName) throws FileNotFoundException,
-			IOException, RemoteException {
+	public FileContent read(String fileName) throws FileNotFoundException, IOException, RemoteException {
 		FileContent data = new FileContent(fileName);
 		ReadWriteLock lock = null;
 		if (!fileReadWriteLock.containsKey(fileName)) {
@@ -92,8 +89,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 	}
 
 	@Override
-	public boolean commit(long txnID, long numOfMsgs)
-			throws MessageNotFoundException, RemoteException {
+	public boolean commit(long txnID, long numOfMsgs) throws MessageNotFoundException, RemoteException {
 		if (fileNameTransaction.containsKey(txnID)) {
 			String fileName = fileNameTransaction.remove(txnID);
 			FileContent content = cache.remove(fileName);
@@ -102,7 +98,6 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 				locations = masterServer.read(fileName);
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				System.out.println("errrrrror13");
 			}
 			boolean success = true;
 			System.out.println(locations[0]);
@@ -118,11 +113,10 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 						success |= repServer.commit(txnID, 1);
 					} catch (Exception e) {
 						e.printStackTrace();
-						System.out.println("errrrrror12");
 					}
 				}
 			}
-			
+
 			ReadWriteLock lock = null;
 			if (!fileReadWriteLock.containsKey(fileName)) {
 				lock = new ReentrantReadWriteLock();
@@ -141,22 +135,18 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			} catch (IOException e) {
 				e.printStackTrace();
 				success = false;
-				System.out.println("errrrrror");
 			} finally {
 				lock.writeLock().unlock();
-				System.out.println("errrrrror1");
 			}
 			fileLock.get(fileName).release();
-			
+
 			try {
 				FileContent fc = new FileContent(fileName);
 				fc.setData(null);
 				masterServer.write(fc);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				System.out.println(e1);
-				//System.out.println("errrrrror11");
 			}
 
 			return success;
@@ -175,7 +165,6 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 		return false;
 	}
 
-	// Arguments: name dir port masterName masterAddress masterPort
 	public static void main(String[] args) {
 		String replicaName = args[0];
 		String serverDir = args[1];
@@ -184,9 +173,6 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 		String masterServerAdd = args[4];
 		int masterServerPort = new Integer(args[5]);
 
-		System.out.println("innnnn");
-
-		
 		try {
 			File dir1 = new File(serverDir);
 			if (!dir1.exists())
@@ -197,35 +183,21 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			Registry registry = null;
 			try {
 				registry = LocateRegistry.createRegistry(port);
-				System.out.println("hasdaj");
+
 			} catch (Exception e) {
 				registry = LocateRegistry.getRegistry(port);
-				System.out.println("errrrrror2");
 			}
 
-			Registry reg2 = LocateRegistry.getRegistry(masterServerAdd,
-					masterServerPort);
-			MasterServerClientInterface masterServer = (MasterServerClientInterface) reg2
-					.lookup(masterServerName);
+			Registry reg2 = LocateRegistry.getRegistry(masterServerAdd, masterServerPort);
+			MasterServerClientInterface masterServer = (MasterServerClientInterface) reg2.lookup(masterServerName);
 
-			ReplicaServer replicaServerObj = new ReplicaServer(serverDir
-					+ "/" + replicaName, replicaName, masterServer);
+			ReplicaServer replicaServerObj = new ReplicaServer(serverDir + "/" + replicaName, replicaName,
+					masterServer);
 			ReplicaServerClientInterface replicaServerStub = (ReplicaServerClientInterface) UnicastRemoteObject
 					.exportObject(replicaServerObj, 0);
-			System.out.println("here!!");
-			System.out.println(replicaName);
-			System.out.println(replicaServerStub);
-//			LocateRegistry.createRegistry(2020);
-//			Runtime.getRuntime().exec("rmiregistry " + port);
 			registry.rebind(replicaName, replicaServerStub);
-
-			// System.out.println("----" +
-			// masterServer.read("file1.txt").length);
-
-			System.out.println("here also!!");
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("errrrrror3");
 		}
 	}
 }
