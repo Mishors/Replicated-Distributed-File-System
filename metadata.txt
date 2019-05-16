@@ -1,3 +1,0 @@
-file.txt replica6 replica1 replica5
-file.txt replica6 replica1 replica5
-file.txt replica6 replica1 replica5

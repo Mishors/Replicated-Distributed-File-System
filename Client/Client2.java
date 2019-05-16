@@ -14,7 +14,7 @@ import interfaces.MasterServerClientInterface;
 import interfaces.ReplicaServerClientInterface;
 import test.MessageNotFoundException;
 
-public class Client {
+public class Client2 {
 	private String masterServerName = null, masterServerAddress = null;
 	private int masterServerPort = 0;
 	
@@ -91,7 +91,7 @@ public class Client {
 		repServer.commit(msg.getTransactionId(), 3);
 	}
 	
-	public void read (String fileName, String serverMetaDataFile) throws Exception {
+	public boolean read (String fileName, String serverMetaDataFile) throws Exception {
 		// Read Master Server meta Data
 		readServerMetaData(serverMetaDataFile);
 		//System.out.println("Connected To " + masterServerName + " Address:" + 
@@ -110,33 +110,34 @@ public class Client {
 			System.out.println("Reading ..");
 			System.out.println(primReplica.read(fileName).getData());		
 			System.out.println("Finished Reading ..");
+			return true;
 		}catch(Exception e) {
 			System.out.println("Couldn't read");
+			return false;
 		}		
 	}
 
 	public static void main(String[] args) throws Exception {
 		// Write for Client
-		Client client1 = new Client();
 		
+		Client2 client2 = new Client2();
 
 		String fileName1 = "file1.txt";
 		String fileName2 = "file2.txt";
 		String serverMetaDataFile = "Client/Server_meta_data.txt";
 		//FileContent data1 = null;
 
-		FileContent data1 = client1.write(fileName1, serverMetaDataFile);
-		System.out.println("Client1 finished write without in file 1 commit");		
-		client1.commit(data1);
-		System.out.println("Client 1 Commited file1");
+		
+		while(!client2.read(fileName1, serverMetaDataFile));
+		System.out.println("Client2 finish read from file1");
 		
 		
-		client1.read(fileName1, serverMetaDataFile);
-		System.out.println("Client1 finished read");
+		client2.write(fileName1, serverMetaDataFile);
+		System.out.println("Client 2 finished write in file 1 without commit");
 		
 		
-		client1.read(fileName2, serverMetaDataFile);
-		System.out.println("Client1 finished read from file2");
+		client2.write(fileName2, serverMetaDataFile);
+		System.out.println("Client 2 finished write in file2 without commit");
 		
 
 	}

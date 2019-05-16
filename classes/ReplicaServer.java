@@ -58,7 +58,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			fileNameTransaction.put(txnID, fileName);
 			cache.put(fileName, data);
 		} else {
-			cache.get(fileName).appendData(data.getData());
+			//cache.get(fileName).appendData(data.getData());
 
 		}
 		return null;
@@ -75,7 +75,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 			lock = fileReadWriteLock.get(fileName);
 		}
 
-		lock.readLock().lock();
+		//lock.readLock().lock();
 		Scanner myScanner = new Scanner(new File(dir + "/" + fileName));
 		while (myScanner.hasNext()) {
 			data.appendData(myScanner.nextLine());
@@ -83,7 +83,7 @@ public class ReplicaServer implements ReplicaServerClientInterface {
 				data.appendData("\n");
 		}
 		myScanner.close();
-		lock.readLock().unlock();
+		//lock.readLock().unlock();
 
 		return data;
 	}
